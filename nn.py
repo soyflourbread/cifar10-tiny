@@ -115,3 +115,34 @@ def create_model():
     outputs = tf.keras.layers.Dense(10)(x)
 
     return tf.keras.Model(inputs=inputs, outputs=outputs)
+
+
+def create_model_large():
+    inputs = tf.keras.Input(shape=(32, 32, 3))
+
+    x = tf.keras.layers.Conv2D(
+        32, 4, padding="same",
+        name="stem-conv"
+    )(inputs)
+    x = tf.keras.layers.LayerNormalization(
+        name="stem-layernorm"
+    )(x)
+
+    x = dognet_block(32, 2, 3, factor=2, prefix="dog-1")(x)
+    x = tf.keras.layers.MaxPool2D()(x)
+
+    x = tf.keras.layers.Dense(64, name="adapt-1")(x)
+    x = dognet_block(64, 4, 3, factor=4, prefix="dog-2")(x)
+    x = tf.keras.layers.MaxPool2D()(x)
+
+    x = tf.keras.layers.Dense(128, name="adapt-2")(x)
+    x = dognet_block(128, 2, 3, factor=2, prefix="dog-3")(x)
+
+    x = tf.keras.layers.LayerNormalization(
+        name="head-layernorm"
+    )(x)
+    x = tf.keras.layers.GlobalAveragePooling2D()(x)
+
+    outputs = tf.keras.layers.Dense(10)(x)
+
+    return tf.keras.Model(inputs=inputs, outputs=outputs)

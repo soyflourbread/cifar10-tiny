@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from nn import create_model
+from nn import create_model, create_model_large
 from dataset import fetch_dataset
 
 import datetime
@@ -28,8 +28,8 @@ def configure_tf_tpu():
     return strategy
 
 
-def create_and_backpropagate(ds_train, ds_test, epoch):
-    model = create_model()
+def create_and_backpropagate(ds_train, ds_test, epoch, create_mode_func):
+    model = create_mode_func()
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.002)
     model.compile(optimizer=optimizer,
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
@@ -56,7 +56,7 @@ def run(batch_size):
 
     ds_train, ds_test = fetch_dataset(batch_size)
 
-    create_and_backpropagate(ds_train, ds_test, 100)
+    create_and_backpropagate(ds_train, ds_test, 100, create_model)
 
 
 def run_tpu(batch_size):
@@ -67,7 +67,7 @@ def run_tpu(batch_size):
     ds_train, ds_test = fetch_dataset(batch_size)
 
     with strategy.scope():
-        create_and_backpropagate(ds_train, ds_test, 200)
+        create_and_backpropagate(ds_train, ds_test, 200, create_model_large)
 
 
 def main():
