@@ -42,10 +42,6 @@ def bottleneck(
         x = tf.keras.layers.LayerNormalization(
             name="{}-layernorm".format(prefix)
         )(x)
-        # x = tf.keras.layers.Dense(
-        #     filter_count * factor,
-        #     name="{}-dense".format(prefix)
-        # )(x)
         x = tf.keras.activations.gelu(x)
         x = tf.keras.layers.Dropout(
             0.1,
