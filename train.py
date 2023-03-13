@@ -28,11 +28,7 @@ def configure_tf_tpu():
     return strategy
 
 
-def run(batch_size):
-    configure_tf()
-
-    ds_train, ds_test = fetch_dataset(batch_size)
-
+def create_and_backpropagate(ds_train, ds_test, epoch):
     model = create_model()
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.002)
     model.compile(optimizer=optimizer,
@@ -43,13 +39,24 @@ def run(batch_size):
 
     model_dir = "model/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
-    model.fit(
-        ds_train,
-        epochs=100,
-        validation_data=ds_test
-    )
+    try:
+        model.fit(
+            ds_train,
+            epochs=100,
+            validation_data=ds_test
+        )
+    except KeyboardInterrupt:
+        print("Interrupt received. Saving model...")
 
     model.save(model_dir)
+
+
+def run(batch_size):
+    configure_tf()
+
+    ds_train, ds_test = fetch_dataset(batch_size)
+
+    create_and_backpropagate(ds_train, ds_test, 100)
 
 
 def run_tpu(batch_size):
@@ -60,23 +67,7 @@ def run_tpu(batch_size):
     ds_train, ds_test = fetch_dataset(batch_size)
 
     with strategy.scope():
-        model = create_model()
-        optimizer = tf.keras.optimizers.Adam(learning_rate=0.002)
-        model.compile(optimizer=optimizer,
-                      loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-                      metrics=[tf.keras.metrics.SparseCategoricalAccuracy(name="accuracy")]
-                      )
-        model.summary()
-
-        model_dir = "model/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-
-        model.fit(
-            ds_train,
-            epochs=200,
-            validation_data=ds_test
-        )
-
-        model.save(model_dir)
+        create_and_backpropagate(ds_train, ds_test, 200)
 
 
 def main():
