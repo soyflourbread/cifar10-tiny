@@ -72,7 +72,7 @@ def run_tpu(batch_size):
 
         model.fit(
             ds_train,
-            epochs=100,
+            epochs=200,
             validation_data=ds_test
         )
 
