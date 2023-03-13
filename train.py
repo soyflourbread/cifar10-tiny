@@ -56,7 +56,7 @@ def run(batch_size, augment):
 
     ds_train, ds_test = fetch_dataset(batch_size, augment)
 
-    create_and_backpropagate(ds_train, ds_test, 100)
+    create_and_backpropagate(ds_train, ds_test, 200)
 
 
 def run_tpu(batch_size, augment):
