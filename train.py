@@ -5,6 +5,8 @@ from dataset import fetch_dataset
 
 import datetime
 
+import argparse
+
 
 def configure_tf():
     physical_devices = tf.config.list_physical_devices('GPU')
@@ -17,9 +19,16 @@ def configure_tf():
 
 
 def main():
+    parser = argparse.ArgumentParser(
+        prog="dognet-train",
+        description='it does',
+        epilog='something')
+    parser.add_argument('-b', '--batch', type=int)
+    args = parser.parse_args()
+
     configure_tf()
 
-    ds_train, ds_test = fetch_dataset()
+    ds_train, ds_test = fetch_dataset(args.batch)
 
     model = create_model()
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.002)
