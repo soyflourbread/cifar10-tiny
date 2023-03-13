@@ -8,7 +8,7 @@ def norm_img(image, label):
 
 def augment_img(image, label):
     image = tf.keras.layers.RandomFlip("horizontal")(image)
-    image = tf.keras.layers.RandomRotation(0.15, fill_mode="nearest")(image)
+    # image = tf.keras.layers.RandomRotation(0.15, fill_mode="nearest")(image)
     image = tf.keras.layers.RandomTranslation(0.1, 0.1, fill_mode="nearest")(image)
     return image, label
 
