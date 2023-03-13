@@ -18,7 +18,7 @@ def configure_tf():
 
 
 def configure_tf_tpu():
-    tf.keras.mixed_precision.set_global_policy('mixed_bfloat16')
+    # tf.keras.mixed_precision.set_global_policy('mixed_bfloat16')
 
     cluster_resolver = tf.distribute.cluster_resolver.TPUClusterResolver()
     tf.config.experimental_connect_to_cluster(cluster_resolver)
