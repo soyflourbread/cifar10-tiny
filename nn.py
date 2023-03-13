@@ -29,6 +29,7 @@ class LayerScale(tf.keras.layers.Layer):
 
 def bottleneck(
         filter_count, factor,
+        kernel_size,
         prefix="bottleneck",
         switch_init_a=1e-6
 ):
@@ -67,6 +68,7 @@ def bottleneck(
 def dognet_block(
         filter_count,
         layer_count,
+        kernel_size,
         prefix="dblock",
         factor=4
 ):
@@ -76,7 +78,7 @@ def dognet_block(
             x_sub = x_main
 
             x_main = bottleneck(
-                filter_count, factor,
+                filter_count, factor, kernel_size,
                 prefix="{}-bottleneck-{}".format(prefix, i)
             )(x_main)
             x_main = tf.keras.layers.Add(
@@ -92,15 +94,15 @@ def create_model():
     inputs = tf.keras.Input(shape=(32, 32, 3))
 
     x = tf.keras.layers.Conv2D(32, 4, padding="same")(inputs)
-    x = dognet_block(32, 3, factor=4, prefix="dog-1")(x)
+    x = dognet_block(32, 3, 5, factor=4, prefix="dog-1")(x)
     x = tf.keras.layers.MaxPool2D()(x)
 
     x = tf.keras.layers.Dense(64)(x)
-    x = dognet_block(64, 9, factor=8, prefix="dog-2")(x)
+    x = dognet_block(64, 3, 5, factor=4, prefix="dog-2")(x)
     x = tf.keras.layers.MaxPool2D()(x)
 
     x = tf.keras.layers.Dense(128)(x)
-    x = dognet_block(128, 3, factor=2, prefix="dog-3")(x)
+    x = dognet_block(128, 3, 3, factor=2, prefix="dog-3")(x)
 
     x = tf.keras.layers.ReLU()(x)
     x = tf.keras.layers.GlobalAveragePooling2D()(x)
