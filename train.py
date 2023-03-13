@@ -42,7 +42,7 @@ def create_and_backpropagate(ds_train, ds_test, epoch):
     try:
         model.fit(
             ds_train,
-            epochs=100,
+            epochs=epoch,
             validation_data=ds_test
         )
     except KeyboardInterrupt:
