@@ -10,7 +10,6 @@ import argparse
 
 def configure_tf():
     physical_devices = tf.config.list_physical_devices('GPU')
-    print("Num GPUs:", len(physical_devices))
 
     if len(physical_devices) > 0:
         tf.config.set_logical_device_configuration(
@@ -27,6 +26,8 @@ def main():
     args = parser.parse_args()
 
     configure_tf()
+
+    print("Batch: {}".format(args.batch))
 
     ds_train, ds_test = fetch_dataset(args.batch)
 
