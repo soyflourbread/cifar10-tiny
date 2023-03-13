@@ -92,15 +92,15 @@ def create_model():
     inputs = tf.keras.Input(shape=(32, 32, 3))
 
     x = tf.keras.layers.Conv2D(32, 4, padding="same")(inputs)
-    x = dognet_block(32, 2, factor=2, prefix="dog-1")(x)
+    x = dognet_block(32, 3, factor=4, prefix="dog-1")(x)
     x = tf.keras.layers.MaxPool2D()(x)
 
     x = tf.keras.layers.Dense(64)(x)
-    x = dognet_block(64, 4, factor=4, prefix="dog-2")(x)
+    x = dognet_block(64, 9, factor=8, prefix="dog-2")(x)
     x = tf.keras.layers.MaxPool2D()(x)
 
     x = tf.keras.layers.Dense(128)(x)
-    x = dognet_block(128, 2, factor=2, prefix="dog-3")(x)
+    x = dognet_block(128, 3, factor=2, prefix="dog-3")(x)
 
     x = tf.keras.layers.ReLU()(x)
     x = tf.keras.layers.GlobalAveragePooling2D()(x)
