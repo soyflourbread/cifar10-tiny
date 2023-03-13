@@ -23,8 +23,8 @@ def fetch_dataset(batch_size):
 
     ds_train = ds_train.map(
         norm_img, num_parallel_calls=tf.data.AUTOTUNE)
-    ds_train = ds_train.map(
-        augment_img, num_parallel_calls=tf.data.AUTOTUNE)
+    # ds_train = ds_train.map(
+    #     augment_img, num_parallel_calls=tf.data.AUTOTUNE)
     ds_train = ds_train.batch(batch_size)
     ds_train = ds_train.cache()
     ds_train = ds_train.prefetch(tf.data.AUTOTUNE)
