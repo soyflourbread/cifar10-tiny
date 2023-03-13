@@ -12,7 +12,7 @@ def augment_img(image, label):
     return image, label
 
 
-def fetch_dataset(batch_size):
+def fetch_dataset(batch_size, augment):
     (ds_train, ds_test) = tfds.load(
         'cifar10',
         split=['train', 'test'],
@@ -22,8 +22,9 @@ def fetch_dataset(batch_size):
 
     ds_train = ds_train.map(
         norm_img, num_parallel_calls=tf.data.AUTOTUNE)
-    ds_train = ds_train.map(
-        augment_img, num_parallel_calls=tf.data.AUTOTUNE)
+    if augment:
+        ds_train = ds_train.map(
+            augment_img, num_parallel_calls=tf.data.AUTOTUNE)
     ds_train = ds_train.batch(batch_size)
     ds_train = ds_train.cache()
     ds_train = ds_train.prefetch(tf.data.AUTOTUNE)

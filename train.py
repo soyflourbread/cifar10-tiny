@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from nn import create_model, create_model_large
+from nn import create_model
 from dataset import fetch_dataset
 
 import datetime
@@ -28,8 +28,8 @@ def configure_tf_tpu():
     return strategy
 
 
-def create_and_backpropagate(ds_train, ds_test, epoch, create_mode_func):
-    model = create_mode_func()
+def create_and_backpropagate(ds_train, ds_test, epoch):
+    model = create_model()
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.002)
     model.compile(optimizer=optimizer,
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
@@ -51,23 +51,23 @@ def create_and_backpropagate(ds_train, ds_test, epoch, create_mode_func):
     model.save(model_dir)
 
 
-def run(batch_size):
+def run(batch_size, augment):
     configure_tf()
 
-    ds_train, ds_test = fetch_dataset(batch_size)
+    ds_train, ds_test = fetch_dataset(batch_size, augment)
 
-    create_and_backpropagate(ds_train, ds_test, 100, create_model)
+    create_and_backpropagate(ds_train, ds_test, 100)
 
 
-def run_tpu(batch_size):
+def run_tpu(batch_size, augment):
     print("Running from TPU...")
 
     strategy = configure_tf_tpu()
 
-    ds_train, ds_test = fetch_dataset(batch_size)
+    ds_train, ds_test = fetch_dataset(batch_size, augment)
 
     with strategy.scope():
-        create_and_backpropagate(ds_train, ds_test, 200, create_model_large)
+        create_and_backpropagate(ds_train, ds_test, 200)
 
 
 def main():
@@ -75,14 +75,17 @@ def main():
         prog="dognet-train",
         description='it does',
         epilog='something')
-    parser.add_argument('-t', '--tpu', action='store_true')
     parser.add_argument('-b', '--batch', type=int)
+    parser.add_argument('-a', '--augment', action='store_true')
+    parser.add_argument('-t', '--tpu', action='store_true')
     args = parser.parse_args()
 
+    print("Running with config: [batch={}, augment={}]".format(args.batch, args.augment))
+
     if args.tpu:
-        run_tpu(args.batch)
+        run_tpu(args.batch, args.augment)
     else:
-        run(args.batch)
+        run(args.batch, args.augment)
 
 
 if __name__ == "__main__":
