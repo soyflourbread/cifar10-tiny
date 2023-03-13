@@ -34,10 +34,6 @@ def bottleneck(
         switch_init_a=1e-6
 ):
     def _bottleneck_impl(x):
-        # x = tf.keras.layers.DepthwiseConv2D(
-        #     3, padding="same",
-        #     name="{}-dconv".format(prefix)
-        # )(x)
         x = tf.keras.layers.DepthwiseConv2D(
             3, padding="same",
             depth_multiplier=factor,
@@ -47,10 +43,10 @@ def bottleneck(
             name="{}-layernorm".format(prefix)
         )(x)
         x = tf.keras.activations.gelu(x)
-        # x = tf.keras.layers.Dropout(
-        #     0.2,
-        #     name="{}-dropout".format(prefix)
-        # )(x)
+        x = tf.keras.layers.Dropout(
+            0.1,
+            name="{}-dropout".format(prefix)
+        )(x)
         x = tf.keras.layers.Dense(
             filter_count,
             name="{}-dense".format(prefix)
