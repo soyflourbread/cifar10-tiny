@@ -10,9 +10,10 @@ def configure_tf():
     physical_devices = tf.config.list_physical_devices('GPU')
     print("Num GPUs:", len(physical_devices))
 
-    tf.config.set_logical_device_configuration(
-        physical_devices[0],
-        [tf.config.LogicalDeviceConfiguration(memory_limit=10000)])
+    if len(physical_devices) > 0:
+        tf.config.set_logical_device_configuration(
+            physical_devices[0],
+            [tf.config.LogicalDeviceConfiguration(memory_limit=10000)])
 
 
 def main():
