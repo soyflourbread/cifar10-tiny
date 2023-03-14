@@ -8,6 +8,11 @@ import datetime
 import argparse
 
 
+def enable_mixed():
+    print("Warn: enabling mixed precision")
+    tf.keras.mixed_precision.set_global_policy('mixed_float16')
+
+
 def configure_tf():
     physical_devices = tf.config.list_physical_devices('GPU')
 
@@ -18,8 +23,6 @@ def configure_tf():
 
 
 def configure_tf_tpu():
-    # tf.keras.mixed_precision.set_global_policy('mixed_bfloat16')
-
     cluster_resolver = tf.distribute.cluster_resolver.TPUClusterResolver()
     tf.config.experimental_connect_to_cluster(cluster_resolver)
     tf.tpu.experimental.initialize_tpu_system(cluster_resolver)
@@ -39,11 +42,15 @@ def create_and_backpropagate(ds_train, ds_test, epoch):
 
     model_dir = "model/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
+    log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+
     try:
         model.fit(
             ds_train,
             epochs=epoch,
-            validation_data=ds_test
+            validation_data=ds_test,
+            callbacks=[tensorboard_callback]
         )
     except KeyboardInterrupt:
         print("Interrupt received. Saving model...")
@@ -78,9 +85,13 @@ def main():
     parser.add_argument('-b', '--batch', type=int)
     parser.add_argument('-a', '--augment', action='store_true')
     parser.add_argument('-t', '--tpu', action='store_true')
+    parser.add_argument('-m', '--mixed', action='store_true')
     args = parser.parse_args()
 
     print("Running with config: [batch={}, augment={}]".format(args.batch, args.augment))
+
+    if args.mixed:
+        enable_mixed()
 
     if args.tpu:
         run_tpu(args.batch, args.augment)
