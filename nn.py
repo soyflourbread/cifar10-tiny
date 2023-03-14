@@ -29,7 +29,7 @@ class LayerScale(tf.keras.layers.Layer):
 
 class PreStem(tf.keras.Model):
     def __init__(self, prefix="prestem"):
-        super(PreStem, self).__init__(name="{}-parent".format(prefix))
+        super(PreStem, self).__init__(name="{}".format(prefix))
         self.norm = tf.keras.layers.Normalization(
             mean=[
                 0.4913997551666284 * 255,
@@ -50,7 +50,7 @@ class PreStem(tf.keras.Model):
 
 class Stem(tf.keras.Model):
     def __init__(self, filter_count, prefix="stem"):
-        super(Stem, self).__init__(name="{}-parent".format(prefix))
+        super(Stem, self).__init__(name="{}".format(prefix))
         self.conv = tf.keras.layers.Conv2D(
             filter_count, 4, padding="same",
             name="{}-conv".format(prefix)
@@ -66,7 +66,7 @@ class Stem(tf.keras.Model):
 
 class DownSample(tf.keras.Model):
     def __init__(self, filter_count, prefix="downsample"):
-        super(DownSample, self).__init__(name="{}-parent".format(prefix))
+        super(DownSample, self).__init__(name="{}".format(prefix))
         self.lnorm = tf.keras.layers.LayerNormalization(
             epsilon=1e-6,
             name="{}-lnorm".format(prefix)
@@ -85,7 +85,7 @@ class DownSample(tf.keras.Model):
 
 class Bottleneck(tf.keras.Model):
     def __init__(self, filter_count, factor=4, switch_init_a=1e-6, prefix="bottleneck"):
-        super(Bottleneck, self).__init__(name="{}-parent".format(prefix))
+        super(Bottleneck, self).__init__(name="{}".format(prefix))
         self.dconv = tf.keras.layers.DepthwiseConv2D(
             3, padding="same",
             depth_multiplier=factor,
@@ -120,7 +120,7 @@ class Bottleneck(tf.keras.Model):
 
 class DognetBlock(tf.keras.Model):
     def __init__(self, filter_count, layer_count, factor=4, prefix="dblock"):
-        super(DognetBlock, self).__init__(name="{}-parent".format(prefix))
+        super(DognetBlock, self).__init__(name="{}".format(prefix))
 
         self.bottleneck_vec = [
             Bottleneck(
@@ -149,7 +149,7 @@ class DognetBlock(tf.keras.Model):
 
 class Head(tf.keras.Model):
     def __init__(self, num_classes, prefix="head"):
-        super(Head, self).__init__(name="{}-parent".format(prefix))
+        super(Head, self).__init__(name="{}".format(prefix))
         self.pool = tf.keras.layers.GlobalAveragePooling2D()
         self.lnorm = tf.keras.layers.LayerNormalization(
             name="{}-layernorm".format(prefix)
@@ -169,6 +169,7 @@ class Head(tf.keras.Model):
         x = self.relu(x)
 
         return self.dense(x)
+
 
 def create_model():
     inputs = tf.keras.Input(shape=(32, 32, 3))
