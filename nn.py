@@ -83,6 +83,25 @@ class DownSample(tf.keras.Model):
         return self.conv(x)
 
 
+class DownSampleLight(tf.keras.Model):
+    def __init__(self, filter_count, prefix="downsamplelight"):
+        super(DownSampleLight, self).__init__(name="{}".format(prefix))
+        self.dense = tf.keras.layers.Dense(
+            filter_count,
+            name="{}-dense".format(prefix)
+        )
+        self.pool = tf.keras.layers.MaxPool2D()
+        self.lnorm = tf.keras.layers.LayerNormalization(
+            epsilon=1e-6,
+            name="{}-lnorm".format(prefix)
+        )
+
+    def call(self, input_tensor, training=False):
+        x = self.dense(input_tensor)
+        x = self.pool(x)
+        return self.lnorm(x)
+
+
 class Bottleneck(tf.keras.Model):
     def __init__(self, filter_count, factor=4, switch_init_a=1e-6, prefix="bottleneck"):
         super(Bottleneck, self).__init__(name="{}".format(prefix))
@@ -180,10 +199,10 @@ def create_model():
 
     x = DognetBlock(32, 2, factor=2, prefix="dog-1")(x)
 
-    x = DownSample(64, prefix="downsample-1")(x)
+    x = DownSampleLight(64, prefix="downsample-1")(x)
     x = DognetBlock(64, 4, factor=4, prefix="dog-2")(x)
 
-    x = DownSample(128, prefix="downsample-2")(x)
+    x = DownSampleLight(128, prefix="downsample-2")(x)
     x = DognetBlock(128, 2, factor=2, prefix="dog-3")(x)
 
     outputs = Head(10, prefix="head")(x)

@@ -50,23 +50,25 @@ def create_and_backpropagate(ds_train, ds_test, epoch):
             ds_train,
             epochs=epoch,
             validation_data=ds_test,
-            callbacks=[tensorboard_callback]
+            callbacks=[tensorboard_callback],
+            verbose=0
         )
     except KeyboardInterrupt:
         print("Interrupt received. Saving model...")
 
     model.save(model_dir)
+    print("Model saved to {}".format(model_dir))
 
 
-def run(batch_size, augment):
+def run(epoch, batch_size, augment):
     configure_tf()
 
     ds_train, ds_test = fetch_dataset(batch_size, augment)
 
-    create_and_backpropagate(ds_train, ds_test, 200)
+    create_and_backpropagate(ds_train, ds_test, epoch)
 
 
-def run_tpu(batch_size, augment):
+def run_tpu(epoch, batch_size, augment):
     print("Running from TPU...")
 
     strategy = configure_tf_tpu()
@@ -74,7 +76,7 @@ def run_tpu(batch_size, augment):
     ds_train, ds_test = fetch_dataset(batch_size, augment)
 
     with strategy.scope():
-        create_and_backpropagate(ds_train, ds_test, 200)
+        create_and_backpropagate(ds_train, ds_test, epoch)
 
 
 def main():
@@ -82,21 +84,23 @@ def main():
         prog="dognet-train",
         description='it does',
         epilog='something')
+    parser.add_argument('-e', '--epoch', type=int)
     parser.add_argument('-b', '--batch', type=int)
     parser.add_argument('-a', '--augment', action='store_true')
     parser.add_argument('-t', '--tpu', action='store_true')
     parser.add_argument('-m', '--mixed', action='store_true')
     args = parser.parse_args()
 
-    print("Running with config: [batch={}, augment={}]".format(args.batch, args.augment))
+    print("Running with config: [epoch={}, batch={}, augment={}]"
+          .format(args.epoch, args.batch, args.augment))
 
     if args.mixed:
         enable_mixed()
 
     if args.tpu:
-        run_tpu(args.batch, args.augment)
+        run_tpu(args.epoch, args.batch, args.augment)
     else:
-        run(args.batch, args.augment)
+        run(args.epoch, args.batch, args.augment)
 
 
 if __name__ == "__main__":
