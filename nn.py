@@ -89,10 +89,24 @@ def dognet_block(
 def create_model():
     inputs = tf.keras.Input(shape=(32, 32, 3))
 
+    x = tf.keras.layers.Normalization(
+        mean=[
+            0.4913997551666284 * 255,
+            0.48215855929893703 * 255,
+            0.4465309133731618 * 255
+        ],
+        variance=[
+            (0.24703225141799082 * 255) ** 2,
+            (0.24348516474564 * 255) ** 2,
+            (0.26158783926049628 * 255) ** 2
+        ],
+        name="prestem-norm"
+    )(inputs)
+
     x = tf.keras.layers.Conv2D(
         32, 4, padding="same",
         name="stem-conv"
-    )(inputs)
+    )(x)
     x = tf.keras.layers.LayerNormalization(
         name="stem-layernorm"
     )(x)
@@ -107,11 +121,11 @@ def create_model():
     x = tf.keras.layers.Dense(128, name="adapt-2")(x)
     x = dognet_block(128, 2, 3, factor=2, prefix="dog-3")(x)
 
-    # x = tf.keras.layers.LayerNormalization(
-    #     name="head-layernorm"
-    # )(x)
-    x = tf.keras.layers.ReLU()(x)
     x = tf.keras.layers.GlobalAveragePooling2D()(x)
+    x = tf.keras.layers.LayerNormalization(
+        name="head-layernorm"
+    )(x)
+    x = tf.keras.layers.ReLU()(x)
 
     outputs = tf.keras.layers.Dense(10)(x)
 
